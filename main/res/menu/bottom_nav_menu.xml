@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_berita_terkini"
+        android:icon="@drawable/ic_berita_terkini"
+        android:title="@string/menu_berita_terkini" />
+    <item
+        android:id="@+id/nav_semua_berita"
+        android:icon="@drawable/ic_semua_berita"
+        android:title="@string/menu_semua_berita" />
+    <item
+        android:id="@+id/nav_berita_favorit"
+        android:icon="@drawable/ic_berita_favorit"
+        android:title="@string/menu_berita_favorit" />
+</menu>

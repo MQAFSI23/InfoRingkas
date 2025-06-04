@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light Theme Colors -->
+    <color name="colorPrimaryLight">#6200EE</color>
+    <color name="colorPrimaryVariantLight">#3700B3</color>
+    <color name="colorOnPrimaryLight">#FFFFFF</color>
+    <color name="colorSecondaryLight">#03DAC6</color>
+    <color name="colorSecondaryVariantLight">#018786</color>
+    <color name="colorOnSecondaryLight">#000000</color>
+    <color name="colorBackgroundLight">#FFFFFF</color>
+    <color name="colorOnBackgroundLight">#000000</color>
+    <color name="colorSurfaceLight">#FFFFFF</color>
+    <color name="colorOnSurfaceLight">#000000</color>
+    <color name="colorErrorLight">#B00020</color>
+    <color name="colorOnErrorLight">#FFFFFF</color>
+    <color name="textColorPrimaryLight">#DE000000</color> <!-- 87% black -->
+    <color name="textColorSecondaryLight">#8A000000</color> <!-- 54% black -->
+    <color name="iconTintLight">#8A000000</color>
+    <color name="cardBackgroundLight">#F5F5F5</color>
+    <color name="dividerColorLight">#1F000000</color> <!-- 12% black -->
+
+    <!-- Dark Theme Colors -->
+    <color name="colorPrimaryDark">#BB86FC</color>
+    <color name="colorPrimaryVariantDark">#3700B3</color> <!-- Can be same or adjusted -->
+    <color name="colorOnPrimaryDark">#000000</color>
+    <color name="colorSecondaryDark">#03DAC6</color> <!-- Can be same or adjusted -->
+    <color name="colorSecondaryVariantDark">#03DAC6</color>
+    <color name="colorOnSecondaryDark">#000000</color>
+    <color name="colorBackgroundDark">#121212</color>
+    <color name="colorOnBackgroundDark">#FFFFFF</color>
+    <color name="colorSurfaceDark">#1E1E1E</color> <!-- Slightly lighter than background for cards, dialogs -->
+    <color name="colorOnSurfaceDark">#FFFFFF</color>
+    <color name="colorErrorDark">#CF6679</color>
+    <color name="colorOnErrorDark">#000000</color>
+    <color name="textColorPrimaryDark">#FFFFFFFF</color> <!-- 100% white -->
+    <color name="textColorSecondaryDark">#B3FFFFFF</color> <!-- 70% white -->
+    <color name="iconTintDark">#B3FFFFFF</color>
+    <color name="cardBackgroundDark">#2C2C2C</color>
+    <color name="dividerColorDark">#1FFFFFFF</color> <!-- 12% white -->
+
+    <!-- Common Colors -->
+    <color name="favorite_active">#FFD700</color> <!-- Gold for active favorite -->
+    <color name="favorite_inactive_light">#BDBDBD</color> <!-- Grey for inactive favorite in light mode -->
+    <color name="favorite_inactive_dark">#757575</color> <!-- Grey for inactive favorite in dark mode -->
+    <color name="placeholder_color">#E0E0E0</color>
+</resources>

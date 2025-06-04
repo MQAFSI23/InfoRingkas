@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/nav_berita_terkini">
+
+    <fragment
+        android:id="@+id/nav_berita_terkini"
+        android:name="com.example.inforingkas.ui.BeritaTerkiniFragment"
+        android:label="@string/menu_berita_terkini"
+        tools:layout="@layout/fragment_berita_terkini" />
+    <fragment
+        android:id="@+id/nav_semua_berita"
+        android:name="com.example.inforingkas.ui.SemuaBeritaFragment"
+        android:label="@string/menu_semua_berita"
+        tools:layout="@layout/fragment_semua_berita" />
+    <fragment
+        android:id="@+id/nav_berita_favorit"
+        android:name="com.example.inforingkas.ui.BeritaFavoritFragment"
+        android:label="@string/menu_berita_favorit"
+        tools:layout="@layout/fragment_berita_favorit" />
+</navigation>

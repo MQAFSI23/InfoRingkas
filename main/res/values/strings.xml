@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">InfoRingkas</string>
+
+    <!-- Menu Titles -->
+    <string name="menu_berita_terkini">Terkini</string>
+    <string name="menu_semua_berita">Semua</string>
+    <string name="menu_berita_favorit">Favorit</string>
+    <string name="menu_settings">Pengaturan</string>
+    <string name="menu_change_theme">Ubah Tema</string>
+
+    <!-- Labels -->
+    <string name="label_rangkuman_berita">Rangkuman Berita</string>
+    <string name="label_lihat_berita">Lihat</string>
+    <string name="label_rangkum_berita">Rangkum</string>
+    <string name="label_telah_dirangkum">Telah Dirangkum</string>
+    <string name="label_sumber">Sumber: %s</string>
+    <string name="label_kategori">Kategori: %s</string>
+    <string name="label_belum_ada_rangkuman">Belum ada rangkuman untuk berita ini.</string>
+    <string name="label_memuat_rangkuman">Memuat rangkuman...</string>
+    <string name="label_gagal_memuat_rangkuman">Gagal memuat rangkuman. Coba lagi.</string>
+    <string name="label_memuat_berita">Memuat berita...</string>
+    <string name="label_tidak_ada_berita">Tidak ada berita untuk ditampilkan.</string>
+    <string name="label_gagal_memuat_berita">Gagal memuat berita. Periksa koneksi internet Anda.</string>
+    <string name="label_berita_sudah_terbaru">Berita sudah yang terbaru.</string>
+    <string name="label_memperbarui_berita">Memperbarui daftar berita...</string>
+    <string name="label_default_image_description">Gambar Berita</string>
+    <string name="label_source_icon_description">Ikon Sumber Berita</string>
+    <string name="label_favorite_button_description">Tombol Favorit</string>
+
+    <!-- Dialog Theme Chooser -->
+    <string name="dialog_title_pilih_tema">Pilih Tema</string>
+    <string name="theme_light">Terang</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="theme_system">Sistem</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_tombol_lihat_berita">Tombol untuk melihat berita asli</string>
+    <string name="cd_tombol_rangkum_berita">Tombol untuk merangkum berita</string>
+    <string name="cd_gambar_berita">Gambar ilustrasi berita</string>
+    <string name="cd_ikon_sumber">Ikon sumber berita</string>
+    <string name="cd_tombol_favorit">Tombol untuk menandai berita sebagai favorit</string>
+
+</resources>
