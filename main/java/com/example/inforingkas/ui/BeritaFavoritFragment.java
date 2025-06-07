@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,6 +22,7 @@ import com.example.inforingkas.db.DatabaseHelper;
 import com.example.inforingkas.model.Berita;
 import com.example.inforingkas.ui.adapter.BeritaAdapter;
 import com.example.inforingkas.util.Constants;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,13 +47,11 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Load data when view is created
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Selalu muat ulang data dari DB saat fragment resumed untuk memastikan data favorit terbaru
         loadBeritaFavoritFromDb();
     }
 
@@ -64,18 +64,20 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
     private void loadBeritaFavoritFromDb() {
         showLoading(true);
         executorService.execute(() -> {
-            List<Berita> beritaList = dbHelper.getFavoriteBerita(); // Ambil berita favorit
+            List<Berita> beritaList = dbHelper.getFavoriteBerita();
             mainThreadHandler.post(() -> {
                 showLoading(false);
-                if (beritaList == null || beritaList.isEmpty()) {
-                    binding.textViewInfoFavorit.setText(R.string.label_tidak_ada_berita); // Sesuaikan string jika perlu
+                if (binding == null) return;
+                beritaAdapter.submitList(beritaList);
+
+                if (beritaList.isEmpty()) {
+                    binding.textViewInfoFavorit.setText(R.string.label_tidak_ada_berita);
                     binding.textViewInfoFavorit.setVisibility(View.VISIBLE);
                     binding.recyclerViewBeritaFavorit.setVisibility(View.GONE);
                 } else {
                     binding.textViewInfoFavorit.setVisibility(View.GONE);
                     binding.recyclerViewBeritaFavorit.setVisibility(View.VISIBLE);
                 }
-                beritaAdapter.setBeritaList(beritaList);
             });
         });
     }
@@ -113,18 +115,12 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
 
     @Override
     public void onFavoriteClick(Berita berita, int position) {
-        // Di halaman favorit, mengklik tombol favorit berarti menghapusnya dari favorit
-        boolean newFavoriteStatus = false; // Selalu set ke false
+        boolean newFavoriteStatus = false;
         executorService.execute(() -> {
             dbHelper.updateFavoriteStatus(berita.getArticleId(), newFavoriteStatus);
             mainThreadHandler.post(() -> {
-                // Hapus item dari adapter atau muat ulang daftar
-                // Cara sederhana: muat ulang semua data favorit
                 loadBeritaFavoritFromDb();
                 Toast.makeText(requireContext(), "Dihapus dari favorit", Toast.LENGTH_SHORT).show();
-
-                // Cara lebih optimal: hapus item dari list di adapter dan notifyItemRemoved
-                // beritaAdapter.removeItem(position); // Anda perlu menambahkan method ini di adapter
             });
         });
     }
@@ -132,6 +128,6 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null; // Hindari memory leak
+        binding = null;
     }
 }

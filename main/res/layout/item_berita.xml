@@ -2,144 +2,123 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="?attr/materialCardViewStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/AppCardView"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp">
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:layout_height="wrap_content">
 
-        <!-- Gambar Berita -->
         <ImageView
             android:id="@+id/image_view_berita"
             android:layout_width="0dp"
             android:layout_height="180dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:srcCompat="@drawable/ic_placeholder_image"
             android:contentDescription="@string/cd_gambar_berita"
-            android:background="?attr/colorSurface"/>
-
-        <!-- Judul Berita -->
-        <TextView
-            android:id="@+id/text_view_judul_berita"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?attr/textColorPrimary"
-            android:maxLines="2"
-            android:ellipsize="end"
-            app:layout_constraintTop_toBottomOf="@id/image_view_berita"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/button_favorite"
-            app:layout_constraintHorizontal_bias="0.0"
-            tools:text="Judul Berita yang Sangat Panjang Sekali Sampai Tidak Muat Lagi"/>
-
-        <!-- Tombol Favorit -->
-        <ImageButton
-            android:id="@+id/button_favorite"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/cd_tombol_favorit"
-            android:padding="8dp"
-            app:layout_constraintTop_toTopOf="@id/text_view_judul_berita"
-            app:layout_constraintBottom_toBottomOf="@id/text_view_judul_berita"
+            android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_favorite_border_24"
-            app:tint="?attr/favoriteInactiveColor" /> <!-- Default state -->
-
-        <!-- Tanggal Publikasi -->
-        <TextView
-            android:id="@+id/text_view_tanggal_publish"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/textColorSecondary"
-            app:layout_constraintTop_toBottomOf="@id/text_view_judul_berita"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="2025-06-03 03:05:57"/>
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/ic_placeholder_image" />
 
-        <!-- Info Sumber -->
-        <ImageView
-            android:id="@+id/image_view_source_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/text_view_tanggal_publish"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:srcCompat="@drawable/ic_placeholder_source_icon"
-            android:contentDescription="@string/cd_ikon_sumber"/>
-
-        <TextView
-            android:id="@+id/text_view_source_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="?attr/textColorSecondary"
-            app:layout_constraintTop_toTopOf="@id/image_view_source_icon"
-            app:layout_constraintBottom_toBottomOf="@id/image_view_source_icon"
-            app:layout_constraintStart_toEndOf="@id/image_view_source_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="Nama Sumber Berita"/>
-
-        <!-- Kategori -->
-        <TextView
-            android:id="@+id/text_view_kategori"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/textColorSecondary"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/image_view_source_icon"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="Kategori: Top, Nasional"
-            tools:visibility="visible"/>
-
-        <!-- Tombol Aksi -->
         <LinearLayout
-            android:id="@+id/layout_tombol_aksi"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/text_view_kategori"
-            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/image_view_berita">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_lihat_berita"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/label_lihat_berita"
-                android:layout_marginEnd="4dp"/>
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_rangkum_berita"
-                style="?attr/materialButtonStyle"
-                android:layout_width="0dp"
+                <ImageView
+                    android:id="@+id/image_view_source_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/cd_ikon_sumber"
+                    tools:srcCompat="@drawable/ic_placeholder_source_icon" />
+
+                <TextView
+                    android:id="@+id/text_view_source_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceLabelMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Nama Sumber Berita" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_view_judul_berita"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/label_rangkum_berita"
-                android:layout_marginStart="4dp"/>
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                tools:text="Judul Berita yang Sangat Panjang Sekali Sampai Tidak Muat Lagi" />
+
+            <TextView
+                android:id="@+id/text_view_tanggal_publish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="2025-06-03 03:05:57" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/layout_tombol_aksi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_favorite"
+                    style="@style/Widget.Material3.Button.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/cd_tombol_favorit"
+                    app:icon="@drawable/ic_baseline_favorite_border_24"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_lihat_berita"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/label_lihat_berita" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_rangkum_berita"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/label_rangkum_berita" />
+
+            </LinearLayout>
+
         </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

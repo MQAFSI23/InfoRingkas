@@ -6,15 +6,8 @@ public class Constants {
     public static final String KEY_THEME_MODE = "ThemeMode"; // Values: "light", "dark", "system"
     public static final String KEY_LAST_FETCH_DATE_TERKINI = "LastFetchDateTerkini"; // Store date as YYYY-MM-DD
 
-    // API Related
-    public static final String NEWS_API_BASE_URL = "https://newsdata.io/api/1/latest";
-    // API Keys are accessed via BuildConfig.NEWS_API_KEY and BuildConfig.GEMINI_API_KEY
-
     // Gemini API
     public static final String GEMINI_API_URL_FORMAT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=%s";
-    // Note: The prompt for Gemini needs to be carefully constructed.
-    // Example prompt: "Buatkan rangkuman singkat dari artikel berita berikut: [link_berita]"
-    // Or, if you fetch the article content first: "Buatkan rangkuman singkat dari konten berita berikut: [konten_artikel]"
 
     // Database
     public static final String DATABASE_NAME = "InfoRingkasDB";
@@ -37,14 +30,9 @@ public class Constants {
 
     // Intent Extras
     public static final String EXTRA_ARTICLE_ID = "extra_article_id";
-    public static final String EXTRA_ARTICLE_LINK = "extra_article_link"; // For RangkumanActivity if article_id not enough
 
     // Default values
     public static final String THEME_LIGHT = "light";
     public static final String THEME_DARK = "dark";
     public static final String THEME_SYSTEM = "system"; // Or follow system setting
-
-    // Network
-    public static final int NEWS_API_TIMEOUT_MS = 10000; // 10 seconds
-    public static final int GEMINI_API_TIMEOUT_MS = 20000; // 20 seconds
 }

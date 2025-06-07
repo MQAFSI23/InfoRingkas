@@ -40,4 +40,6 @@
     <string name="cd_ikon_sumber">Ikon sumber berita</string>
     <string name="cd_tombol_favorit">Tombol untuk menandai berita sebagai favorit</string>
 
+    <string name="menu_search">Cari judul berita…</string>
+
 </resources>

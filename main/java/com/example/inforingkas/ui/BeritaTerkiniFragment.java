@@ -11,21 +11,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.example.inforingkas.BuildConfig;
 import com.example.inforingkas.R;
 import com.example.inforingkas.RangkumanBeritaActivity;
 import com.example.inforingkas.databinding.FragmentBeritaTerkiniBinding;
 import com.example.inforingkas.db.DatabaseHelper;
 import com.example.inforingkas.model.Berita;
+import com.example.inforingkas.network.ApiClient;
+import com.example.inforingkas.network.ApiService;
 import com.example.inforingkas.network.NetworkUtils;
+import com.example.inforingkas.network.model.NewsApiResponse;
 import com.example.inforingkas.ui.adapter.BeritaAdapter;
 import com.example.inforingkas.util.Constants;
-import com.example.inforingkas.util.ThemePreferenceHelper; // Menggunakan ini untuk SharedPreferences
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.example.inforingkas.util.ThemePreferenceHelper;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,24 +39,35 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class BeritaTerkiniFragment extends Fragment implements BeritaAdapter.OnBeritaClickListener {
 
     private static final String TAG = "BeritaTerkiniFragment";
     private FragmentBeritaTerkiniBinding binding;
     private BeritaAdapter beritaAdapter;
     private DatabaseHelper dbHelper;
-    private ThemePreferenceHelper themePreferenceHelper; // Untuk akses SharedPreferences
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ThemePreferenceHelper themePreferenceHelper;
+    private ApiService apiService;
+
+    private final ExecutorService dbExecutorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private static final int JUMLAH_BERITA_PER_FETCH = 10;
+
+    private static final int MINIMUM_ARTICLES_TARGET = 5;
+    private static final int MAX_PAGES_TO_FETCH = 3;
+
+    private boolean isFetching = false;
+    private final List<Berita> sessionBeritaList = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentBeritaTerkiniBinding.inflate(inflater, container, false);
         dbHelper = new DatabaseHelper(requireContext());
-        themePreferenceHelper = new ThemePreferenceHelper(requireContext()); // Inisialisasi
-
+        themePreferenceHelper = new ThemePreferenceHelper(requireContext());
+        apiService = ApiClient.getClient().create(ApiService.class);
         setupRecyclerView();
         return binding.getRoot();
     }
@@ -69,150 +85,137 @@ public class BeritaTerkiniFragment extends Fragment implements BeritaAdapter.OnB
     }
 
     private void checkAndFetchBerita() {
+        if (isFetching) return;
+
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             Toast.makeText(requireContext(), getString(R.string.label_gagal_memuat_berita) + " (Tidak ada koneksi)", Toast.LENGTH_LONG).show();
-            loadBeritaTerkiniFromDb(); // Coba load dari DB jika offline
+            loadBeritaTerkiniFromDb();
             return;
         }
 
         String lastFetchDateStr = themePreferenceHelper.getLastFetchDateTerkini();
         String todayDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        Log.d(TAG, "Last fetch date: " + lastFetchDateStr + ", Today's date: " + todayDateStr);
-
         if (!todayDateStr.equals(lastFetchDateStr)) {
-            Log.d(TAG, "Tanggal berbeda atau belum pernah fetch. Mengambil berita baru dari API.");
-            fetchBeritaTerkiniFromApi(null); // Mulai tanpa nextPageId
+            sessionBeritaList.clear();
+            beritaAdapter.submitList(new ArrayList<>()); // Kosongkan UI sebelum fetch
+            fetchBeritaTerkiniFromApi(null, 1);
         } else {
-            Log.d(TAG, "Tanggal sama. Memuat berita dari DB dan menampilkan toast.");
             Toast.makeText(requireContext(), R.string.label_berita_sudah_terbaru, Toast.LENGTH_SHORT).show();
             loadBeritaTerkiniFromDb();
         }
     }
 
-    private void fetchBeritaTerkiniFromApi(String nextPageId) {
+    private void fetchBeritaTerkiniFromApi(@Nullable String pageId, int pageFetchCount) {
+        isFetching = true;
         showLoading(true, getString(R.string.label_memperbarui_berita));
-        final boolean isInitialFetch = (nextPageId == null);
 
-        executorService.execute(() -> {
-            try {
-                String jsonResponse = NetworkUtils.fetchNewsData(nextPageId);
-                Log.d(TAG, "API Response: " + jsonResponse.substring(0, Math.min(jsonResponse.length(), 500))); // Log sebagian response
+        if (pageId == null) {
+            dbExecutorService.execute(() -> dbHelper.clearIsTerkiniFlags());
+        }
 
-                JSONObject responseObject = new JSONObject(jsonResponse);
-                String status = responseObject.optString("status");
-
-                if ("success".equals(status)) {
-                    JSONArray resultsArray = responseObject.optJSONArray("results");
-                    List<Berita> fetchedBeritaList = new ArrayList<>();
-                    if (resultsArray != null) {
-                        for (int i = 0; i < resultsArray.length(); i++) {
-                            JSONObject beritaJson = resultsArray.getJSONObject(i);
-                            // Filter hanya berita berbahasa Indonesia
-                            if ("indonesian".equalsIgnoreCase(beritaJson.optString("language"))) {
-                                Berita berita = Berita.fromJson(beritaJson);
-                                fetchedBeritaList.add(berita);
-                            }
-                        }
-                    }
-
-                    // Jika ini adalah fetch awal (bukan pagination), bersihkan flag terkini sebelumnya
-                    if (isInitialFetch) {
-                        dbHelper.clearIsTerkiniFlags();
-                    }
-
-                    // Tambahkan berita baru ke DB dengan flag is_terkini = true
-                    dbHelper.addAllBerita(fetchedBeritaList, true);
-
-                    // Cek apakah sudah cukup 10 berita atau perlu fetch nextPage
-                    List<Berita> currentTerkiniInDb = dbHelper.getBeritaTerkiniFromDb();
-                    String newNextPageId = responseObject.optString("nextPage", null);
-
-                    if (currentTerkiniInDb.size() < JUMLAH_BERITA_PER_FETCH && !newNextPageId.isEmpty()) {
-                        Log.d(TAG, "Belum cukup berita ("+ currentTerkiniInDb.size() +"), fetch nextPage: " + newNextPageId);
-                        // Rekursif panggil untuk halaman berikutnya
-                        // Penting: pastikan ada mekanisme untuk menghentikan rekursi jika tidak ada berita baru
-                        // atau jika API terus memberikan nextPage tanpa hasil yang relevan.
-                        mainThreadHandler.post(() -> fetchBeritaTerkiniFromApi(newNextPageId));
-                    } else {
-                        // Sudah cukup berita atau tidak ada nextPage lagi
-                        if (isInitialFetch || currentTerkiniInDb.size() >= JUMLAH_BERITA_PER_FETCH) {
-                            themePreferenceHelper.setLastFetchDateTerkini(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
-                        }
-                        mainThreadHandler.post(() -> {
-                            loadBeritaTerkiniFromDb();
-                            showLoading(false, null);
-                            if (fetchedBeritaList.isEmpty() && isInitialFetch) {
-                                binding.textViewInfoTerkini.setText(R.string.label_tidak_ada_berita);
-                                binding.textViewInfoTerkini.setVisibility(View.VISIBLE);
-                            }
-                        });
-                    }
+        Call<NewsApiResponse> call = apiService.getLatestNews(BuildConfig.NEWS_API_KEY, "id", pageId);
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<NewsApiResponse> call, @NonNull Response<NewsApiResponse> response) {
+                isFetching = false;
+                if (response.isSuccessful() && response.body() != null) {
+                    handleSuccessfulResponse(response.body(), pageFetchCount);
                 } else {
-                    String message = responseObject.optString("message", getString(R.string.label_gagal_memuat_berita));
-                    Log.e(TAG, "API Error: " + message);
-                    mainThreadHandler.post(() -> {
-                        showLoading(false, null);
-                        binding.textViewInfoTerkini.setText(getString(R.string.label_gagal_memuat_berita) + ": " + message);
-                        binding.textViewInfoTerkini.setVisibility(View.VISIBLE);
-                        Toast.makeText(requireContext(), getString(R.string.label_gagal_memuat_berita) + ": " + message, Toast.LENGTH_LONG).show();
-                        loadBeritaTerkiniFromDb(); // Coba load dari DB jika API gagal
-                    });
+                    handleApiError("Response not successful. Code: " + response.code());
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Exception during API fetch: ", e);
-                mainThreadHandler.post(() -> {
-                    showLoading(false, null);
-                    binding.textViewInfoTerkini.setText(R.string.label_gagal_memuat_berita);
-                    binding.textViewInfoTerkini.setVisibility(View.VISIBLE);
-                    Toast.makeText(requireContext(), R.string.label_gagal_memuat_berita, Toast.LENGTH_LONG).show();
-                    loadBeritaTerkiniFromDb(); // Coba load dari DB jika ada exception
-                });
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<NewsApiResponse> call, @NonNull Throwable t) {
+                isFetching = false;
+                Log.e(TAG, "API call failed: ", t);
+                handleApiError(t.getLocalizedMessage());
             }
         });
     }
 
+    private void handleSuccessfulResponse(NewsApiResponse apiResponse, int pageFetchCount) {
+        List<Berita> indonesianBerita = new ArrayList<>();
+        if (apiResponse.getResults() != null) {
+            for (Berita berita : apiResponse.getResults()) {
+                if (berita != null && "indonesian".equalsIgnoreCase(berita.getLanguage())) {
+                    indonesianBerita.add(berita);
+                }
+            }
+        }
+
+        if (!indonesianBerita.isEmpty()) {
+            dbExecutorService.execute(() -> dbHelper.addAllBerita(indonesianBerita, true));
+            sessionBeritaList.addAll(indonesianBerita);
+        }
+
+        // PERBAIKAN: Selalu update UI dengan list sesi terbaru
+        updateUiWithBerita(sessionBeritaList);
+
+        boolean shouldFetchMore = sessionBeritaList.size() < MINIMUM_ARTICLES_TARGET &&
+                apiResponse.getNextPage() != null &&
+                pageFetchCount < MAX_PAGES_TO_FETCH;
+
+        if (shouldFetchMore) {
+            Log.d(TAG, "Belum cukup berita. Fetching halaman ke-" + (pageFetchCount + 1));
+            fetchBeritaTerkiniFromApi(apiResponse.getNextPage(), pageFetchCount + 1);
+        } else {
+            Log.d(TAG, "Fetching dihentikan. Total berita didapat: " + sessionBeritaList.size());
+            if (!sessionBeritaList.isEmpty()) {
+                themePreferenceHelper.setLastFetchDateTerkini(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
+            }
+        }
+    }
+
+    private void handleApiError(String errorMessage) {
+        mainThreadHandler.post(() -> {
+            if (binding == null) return;
+            updateUiWithBerita(new ArrayList<>());
+            binding.textViewInfoTerkini.setText(getString(R.string.label_gagal_memuat_berita) + ": " + errorMessage);
+            Toast.makeText(requireContext(), getString(R.string.label_gagal_memuat_berita), Toast.LENGTH_LONG).show();
+        });
+    }
 
     private void loadBeritaTerkiniFromDb() {
         showLoading(true, getString(R.string.label_memuat_berita));
-        executorService.execute(() -> {
+        dbExecutorService.execute(() -> {
             List<Berita> beritaList = dbHelper.getBeritaTerkiniFromDb();
-            // Ambil hanya 10 berita teratas jika lebih dari itu
-            List<Berita> displayList = new ArrayList<>();
-            if (beritaList != null) {
-                for (int i = 0; i < Math.min(beritaList.size(), JUMLAH_BERITA_PER_FETCH); i++) {
-                    displayList.add(beritaList.get(i));
-                }
-            }
-
-            mainThreadHandler.post(() -> {
-                showLoading(false, null);
-                if (displayList.isEmpty()) {
-                    binding.textViewInfoTerkini.setText(R.string.label_tidak_ada_berita);
-                    binding.textViewInfoTerkini.setVisibility(View.VISIBLE);
-                    binding.recyclerViewBeritaTerkini.setVisibility(View.GONE);
-                } else {
-                    binding.textViewInfoTerkini.setVisibility(View.GONE);
-                    binding.recyclerViewBeritaTerkini.setVisibility(View.VISIBLE);
-                }
-                beritaAdapter.setBeritaList(displayList);
-            });
+            mainThreadHandler.post(() -> updateUiWithBerita(beritaList));
         });
     }
 
+    private void updateUiWithBerita(List<Berita> beritaList) {
+        if (binding == null) {
+            return;
+        }
+
+        showLoading(false, null);
+        beritaAdapter.submitList(beritaList);
+
+        if (beritaList.isEmpty()) {
+            binding.textViewInfoTerkini.setText(R.string.label_tidak_ada_berita);
+            binding.textViewInfoTerkini.setVisibility(View.VISIBLE);
+            binding.recyclerViewBeritaTerkini.setVisibility(View.GONE);
+        } else {
+            binding.textViewInfoTerkini.setVisibility(View.GONE);
+            binding.recyclerViewBeritaTerkini.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void showLoading(boolean isLoading, @Nullable String message) {
-        if (isLoading) {
+        if (binding == null) {
+            return;
+        }
+        if (isLoading && beritaAdapter.getItemCount() == 0) {
             binding.progressBarTerkini.setVisibility(View.VISIBLE);
             if (message != null) {
                 binding.textViewInfoTerkini.setText(message);
                 binding.textViewInfoTerkini.setVisibility(View.VISIBLE);
-            } else {
-                binding.textViewInfoTerkini.setVisibility(View.GONE);
             }
             binding.recyclerViewBeritaTerkini.setVisibility(View.GONE);
         } else {
             binding.progressBarTerkini.setVisibility(View.GONE);
-            // Info text visibility diatur oleh loadBeritaTerkiniFromDb atau fetchBeritaTerkiniFromApi
         }
     }
 
@@ -234,18 +237,17 @@ public class BeritaTerkiniFragment extends Fragment implements BeritaAdapter.OnB
     public void onRangkumBeritaClick(Berita berita) {
         Intent intent = new Intent(requireActivity(), RangkumanBeritaActivity.class);
         intent.putExtra(Constants.EXTRA_ARTICLE_ID, berita.getArticleId());
-        // intent.putExtra(Constants.EXTRA_ARTICLE_LINK, berita.getLink()); // Kirim link jika diperlukan
         startActivity(intent);
     }
 
     @Override
     public void onFavoriteClick(Berita berita, int position) {
         boolean newFavoriteStatus = !berita.isFavorite();
-        executorService.execute(() -> {
+        dbExecutorService.execute(() -> {
             dbHelper.updateFavoriteStatus(berita.getArticleId(), newFavoriteStatus);
             mainThreadHandler.post(() -> {
-                berita.setFavorite(newFavoriteStatus); // Update model di adapter
-                beritaAdapter.notifyItemChanged(position, "payload_favorite_changed"); // Update item spesifik
+                berita.setFavorite(newFavoriteStatus);
+                beritaAdapter.notifyItemChanged(position, "payload_favorite_changed");
                 String message = newFavoriteStatus ? "Ditambahkan ke favorit" : "Dihapus dari favorit";
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             });
@@ -253,20 +255,16 @@ public class BeritaTerkiniFragment extends Fragment implements BeritaAdapter.OnB
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null; // Hindari memory leak
+    public void onResume() {
+        super.onResume();
+        if(beritaAdapter.getItemCount() == 0 && !isFetching) {
+            loadBeritaTerkiniFromDb();
+        }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        // Refresh data jika kembali ke fragment ini, misalnya setelah merangkum berita
-        // atau mengubah status favorit dari activity lain (jika ada).
-        // Untuk Berita Terkini, mungkin tidak perlu reload otomatis kecuali jika ada perubahan signifikan.
-        // Jika ada perubahan status favorit dari RangkumanBeritaActivity, kita perlu cara untuk merefresh itemnya.
-        // Salah satu cara adalah dengan memanggil loadBeritaTerkiniFromDb() atau cara yang lebih spesifik.
-        // Atau, RangkumanBeritaActivity bisa mengembalikan result yang menandakan perubahan.
-        loadBeritaTerkiniFromDb(); // Muat ulang data dari DB untuk merefleksikan perubahan (misal favorit)
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

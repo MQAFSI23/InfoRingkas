@@ -4,24 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBackground"
+    android:background="?android:attr/colorBackground"
     tools:context=".RangkumanBeritaActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout_rangkuman"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="?attr/actionBarTheme">
+        android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_rangkuman"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="?attr/actionBarPopupTheme"
-            app:title="@string/label_rangkuman_berita"
-            app:titleTextColor="?attr/colorOnPrimary"
-            style="@style/AppToolbar"/>
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar_rangkuman"
+        style="?attr/toolbarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/label_rangkuman_berita"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -30,79 +26,78 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/text_view_judul_rangkuman"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="8dp"
+            tools:text="Judul Berita Akan Tampil di Sini"/>
+
+        <TextView
+            android:id="@+id/text_view_sumber_rangkuman"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="4dp"
+            tools:text="Sumber: Nama Sumber"/>
+
+        <TextView
+            android:id="@+id/text_view_tanggal_rangkuman"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="16dp"
+            tools:text="Tanggal: 2025-06-03 03:05:57"/>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_rangkuman_berita"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginBottom="8dp"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="100dp"
+            android:background="?attr/colorSurface"
+            android:padding="8dp"
+            android:elevation="2dp">
 
             <TextView
-                android:id="@+id/text_view_judul_rangkuman"
+                android:id="@+id/text_view_isi_rangkuman"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline5"
-                android:textColor="?attr/textColorPrimary"
-                android:layout_marginBottom="8dp"
-                tools:text="Judul Berita Akan Tampil di Sini"/>
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="Isi rangkuman berita..."/>
 
-            <TextView
-                android:id="@+id/text_view_sumber_rangkuman"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/textColorSecondary"
-                android:layout_marginBottom="4dp"
-                tools:text="Sumber: Nama Sumber"/>
-
-            <TextView
-                android:id="@+id/text_view_tanggal_rangkuman"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceCaption"
-                android:textColor="?attr/textColorSecondary"
-                android:layout_marginBottom="16dp"
-                tools:text="Tanggal: 2025-06-03 03:05:57"/>
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"/>
-
-            <TextView
+            <ProgressBar
+                android:id="@+id/progress_bar_rangkuman"
+                style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_rangkuman_berita"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:textColor="?attr/textColorPrimary"
-                android:layout_marginBottom="8dp"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="100dp"
-                android:background="?attr/colorSurface"
-                android:padding="8dp"
-                android:elevation="2dp"> <!-- Memberi sedikit efek kedalaman -->
-
-                <TextView
-                    android:id="@+id/text_view_isi_rangkuman"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?attr/textAppearanceBody1"
-                    android:textColor="?attr/textColorPrimary"
-                    tools:text="Isi rangkuman berita akan ditampilkan di sini. Jika belum ada, akan ada pesan loading atau pesan bahwa rangkuman belum tersedia."/>
-
-                <ProgressBar
-                    android:id="@+id/progress_bar_rangkuman"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    tools:visibility="visible"/>
-            </FrameLayout>
-
-        </LinearLayout>
+                android:layout_gravity="center"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+        </FrameLayout>
+    </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -114,8 +109,6 @@
         android:contentDescription="@string/cd_tombol_favorit"
         app:srcCompat="@drawable/ic_baseline_favorite_border_24"
         app:tint="?attr/colorOnSecondary"
-        app:backgroundTint="?attr/colorSecondary"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp"/>
+        app:backgroundTint="?attr/colorSecondary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class ThemePreferenceHelper {
-
     private final SharedPreferences sharedPreferences;
 
     public ThemePreferenceHelper(Context context) {
@@ -22,10 +21,6 @@ public class ThemePreferenceHelper {
     public String getThemeMode() {
         // Default to system theme or light theme if not set
         return sharedPreferences.getString(Constants.KEY_THEME_MODE, Constants.THEME_SYSTEM);
-    }
-
-    public void applyThemeOnAppStart() {
-        applyTheme(getThemeMode());
     }
 
     public static void applyTheme(String themeMode) {
@@ -51,6 +46,6 @@ public class ThemePreferenceHelper {
     }
 
     public String getLastFetchDateTerkini() {
-        return sharedPreferences.getString(Constants.KEY_LAST_FETCH_DATE_TERKINI, ""); // Empty if not set
+        return sharedPreferences.getString(Constants.KEY_LAST_FETCH_DATE_TERKINI, "");
     }
 }

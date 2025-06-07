@@ -1,48 +1,50 @@
 package com.example.inforingkas.model;
 
-import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Berita {
+
+    // PERBAIKAN: Menambahkan anotasi @SerializedName agar cocok dengan JSON API
+    @SerializedName("article_id")
     private String articleId;
+
+    @SerializedName("title")
     private String title;
+
+    @SerializedName("link")
     private String link;
-    private String pubDate; // Simpan sebagai string, bisa di-parse nanti jika perlu manipulasi tanggal
+
+    @SerializedName("pubDate")
+    private String pubDate;
+
+    @SerializedName("image_url")
     private String imageUrl;
+
+    @SerializedName("source_name")
     private String sourceName;
+
+    @SerializedName("source_icon")
     private String sourceIcon;
+
+    @SerializedName("language")
     private String language;
-    private List<String> category; // Bisa juga String jika hanya satu atau dipisah koma
+
+    @SerializedName("category")
+    private List<String> category;
+
+    // Variabel ini tidak dari JSON, jadi tidak perlu anotasi
     private boolean isFavorite;
     private String rangkuman;
-    private boolean isTerkini; // Untuk menandai berita dari fetch terkini
+    private boolean isTerkini;
 
-    // Konstruktor, getter, dan setter
+    // Konstruktor, getter, dan setter (tidak perlu diubah)
 
     public Berita() {
         this.category = new ArrayList<>();
         this.isFavorite = false;
-        this.isTerkini = false; // Default
-    }
-
-    public Berita(String articleId, String title, String link, String pubDate, String imageUrl,
-                  String sourceName, String sourceIcon, String language, List<String> category,
-                  boolean isFavorite, String rangkuman, boolean isTerkini) {
-        this.articleId = articleId;
-        this.title = title;
-        this.link = link;
-        this.pubDate = pubDate;
-        this.imageUrl = imageUrl;
-        this.sourceName = sourceName;
-        this.sourceIcon = sourceIcon;
-        this.language = language;
-        this.category = category;
-        this.isFavorite = isFavorite;
-        this.rangkuman = rangkuman;
-        this.isTerkini = isTerkini;
+        this.isTerkini = false;
     }
 
     // Getters
@@ -73,7 +75,6 @@ public class Berita {
     public void setRangkuman(String rangkuman) { this.rangkuman = rangkuman; }
     public void setTerkini(boolean terkini) { isTerkini = terkini; }
 
-    // Helper untuk kategori (jika disimpan sebagai JSON string di DB)
     public String getCategoryString() {
         if (category == null || category.isEmpty()) {
             return "";
@@ -96,29 +97,5 @@ public class Berita {
                 this.category.add(cat.trim());
             }
         }
-    }
-
-    // Helper untuk parsing dari JSONObject (API response)
-    public static Berita fromJson(JSONObject jsonObject) throws JSONException {
-        Berita berita = new Berita();
-        berita.setArticleId(jsonObject.optString("article_id", null));
-        berita.setTitle(jsonObject.optString("title", "Judul Tidak Tersedia"));
-        berita.setLink(jsonObject.optString("link", null));
-        berita.setPubDate(jsonObject.optString("pubDate", "Tanggal Tidak Tersedia"));
-        berita.setImageUrl(jsonObject.optString("image_url", null)); // Handle null or empty string
-        berita.setSourceName(jsonObject.optString("source_name", "Sumber Tidak Diketahui"));
-        berita.setSourceIcon(jsonObject.optString("source_icon", null)); // Handle null or empty string
-        berita.setLanguage(jsonObject.optString("language", ""));
-
-        JSONArray categoryArray = jsonObject.optJSONArray("category");
-        List<String> categories = new ArrayList<>();
-        if (categoryArray != null) {
-            for (int i = 0; i < categoryArray.length(); i++) {
-                categories.add(categoryArray.optString(i));
-            }
-        }
-        berita.setCategory(categories);
-        // isFavorite, rangkuman, isTerkini akan di-set dari database atau logic lain
-        return berita;
     }
 }
