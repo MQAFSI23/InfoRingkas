@@ -6,20 +6,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.inforingkas.R;
 import com.example.inforingkas.RangkumanBeritaActivity;
@@ -61,7 +57,7 @@ public class SemuaBeritaFragment extends Fragment implements BeritaAdapter.OnBer
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupRecyclerView();
-        setupMenu();
+        setupSearchInput();
     }
 
     @Override
@@ -76,55 +72,18 @@ public class SemuaBeritaFragment extends Fragment implements BeritaAdapter.OnBer
         binding.recyclerViewSemuaBerita.setAdapter(beritaAdapter);
     }
 
-    private void setupMenu() {
-        requireActivity().addMenuProvider(new MenuProvider() {
+    private void setupSearchInput() {
+        binding.searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                menuInflater.inflate(R.menu.search_menu, menu);
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-                MenuItem searchItem = menu.findItem(R.id.action_search);
-                SearchView searchView = (SearchView) searchItem.getActionView();
-
-                if (searchView != null) {
-                    setupSearchView(searchView, searchItem);
-                }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterBerita(s.toString());
             }
 
             @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                return false;
-            }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-    }
-
-    private void setupSearchView(SearchView searchView, MenuItem searchItem) {
-        searchView.setQueryHint(getString(R.string.menu_search));
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                searchView.clearFocus();
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                filterBerita(newText);
-                return true;
-            }
-        });
-
-        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-                filterBerita("");
-                return true;
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 

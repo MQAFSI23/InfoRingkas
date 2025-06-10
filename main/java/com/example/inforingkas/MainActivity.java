@@ -15,6 +15,7 @@ import com.example.inforingkas.databinding.ActivityMainBinding;
 import com.example.inforingkas.util.Constants;
 import com.example.inforingkas.util.ThemePreferenceHelper;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.bottomNavigationView, navController);
+
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> Objects.requireNonNull(getSupportActionBar()).setTitle(destination.getLabel()));
     }
 
     @Override
