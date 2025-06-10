@@ -15,7 +15,8 @@
         android:theme="@style/ThemeOverlay.MaterialComponents"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="8dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_main"
@@ -41,7 +42,7 @@
         android:id="@+id/bottom_navigation_view"
         style="?attr/bottomNavigationStyle"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
