@@ -2,7 +2,13 @@
 
 **Info Ringkas** adalah aplikasi berita modern untuk Android yang dirancang untuk memberikan informasi terbaru dari Indonesia. Aplikasi ini tidak hanya menampilkan berita, tetapi juga merangkumnya menggunakan AI, sehingga pengguna tidak harus membaca artikel sepenuhnya.
 
-![Contoh Tampilan Aplikasi Info Ringkas](https://placehold.co/800x400/FFFFFF/000000?text=Tampilan+Aplikasi+Info+Ringkas)
+| Splash View | Berita Terkini | Semua Berita |
+| :-------------: | :-------------: | :-------------: |
+| ![Tampilan Splash View](https://github.com/MQAFSI23/InfoRingkas/blob/main/screenshots/splash.jpeg) <br> | ![Tampilan Berita Terkini](https://github.com/MQAFSI23/InfoRingkas/blob/main/screenshots/beritaTerkini.jpeg) <br> | ![Tampilan Semua Berita](https://github.com/MQAFSI23/InfoRingkas/blob/main/screenshots/semuaBerita.jpeg) <br> |
+
+| Berita Favorite | Rangkuman AI | Dark Mode |
+| :-------------: | :-------------: | :-------------: |
+| ![Tampilan Berita Terkini](https://github.com/MQAFSI23/InfoRingkas/blob/main/screenshots/beritaFavorite.jpeg) <br> | ![Tampilan Rangkuman Berita dengan AI](https://github.com/MQAFSI23/InfoRingkas/blob/main/screenshots/rangkuman.jpeg) <br> | ![Tampilan Dark Mode](https://github.com/MQAFSI23/InfoRingkas/blob/main/screenshots/darkMode.jpeg) <br> |
 
 ---
 
