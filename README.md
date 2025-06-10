@@ -30,9 +30,9 @@ Proyek ini dibangun menggunakan teknologi dan library sesuai pengembangan Androi
 -   **UI & Desain**:
     -   [Material Components for Android (Material 3)](https://material.io/develop/android/docs/getting-started)
     -   ViewBinding
-    -   Adaptive Icon & Splash Screen API
+    -   [LottieFiles](https://lottiefiles.com/)
 -   **Manajemen Database**: SQLite (melalui `SQLiteOpenHelper`)
--   **Loading Gambar**: [Glide](https://github.com/bumptech/glide)
+-   **Pemuat Gambar**: [Glide](https://github.com/bumptech/glide)
 -   **Asynchronous**: Handler & ExecutorService
 
 ---
@@ -76,6 +76,7 @@ Repositori ini berisi **sumber kode utama** (`/main`) dari aplikasi. Untuk menja
         implementation libs.converter.gson
         implementation libs.logging.interceptor
         implementation libs.glide
+        implementation libs.lottie
     }
     ```
 3.  Pastikan juga Anda sudah mengaktifkan `viewBinding` dan `buildConfig` di file yang sama:
