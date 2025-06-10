@@ -87,18 +87,29 @@
                 android:textAppearance="?attr/textAppearanceBody1"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Isi rangkuman berita..."/>
-
-            <ProgressBar
-                android:id="@+id/progress_bar_rangkuman"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                tools:visibility="visible"/>
         </FrameLayout>
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/progress_bar_rangkuman"
+        app:lottie_rawRes="@raw/loading_animation"
+        app:lottie_loop="true"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_muat_ulang_rangkuman"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/label_muat_ulang"
+        android:visibility="gone"
+        app:icon="@drawable/ic_refresh_24"
+        tools:visibility="visible"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_favorite_rangkuman"

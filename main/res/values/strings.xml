@@ -41,5 +41,6 @@
     <string name="cd_tombol_favorit">Tombol untuk menandai berita sebagai favorit</string>
 
     <string name="menu_search">Cari judul berita…</string>
+    <string name="label_muat_ulang">Muat ulang</string>
 
 </resources>

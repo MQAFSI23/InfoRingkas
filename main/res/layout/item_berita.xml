@@ -95,11 +95,11 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_favorite"
                     style="@style/Widget.Material3.Button.Icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/cd_tombol_favorit"
                     app:icon="@drawable/ic_baseline_favorite_border_24"
-                    app:iconTint="?attr/colorOnSurfaceVariant" />
+                    app:iconTint="?attr/colorOnSurfaceVariant"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_lihat_berita"

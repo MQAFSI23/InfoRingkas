@@ -35,18 +35,22 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
-    @Nullable
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        dbHelper = new DatabaseHelper(requireContext());
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentBeritaFavoritBinding.inflate(inflater, container, false);
-        dbHelper = new DatabaseHelper(requireContext());
-        setupRecyclerView();
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupRecyclerView();
     }
 
     @Override
@@ -62,12 +66,11 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
     }
 
     private void loadBeritaFavoritFromDb() {
-        showLoading(true);
         executorService.execute(() -> {
             List<Berita> beritaList = dbHelper.getFavoriteBerita();
             mainThreadHandler.post(() -> {
-                showLoading(false);
                 if (binding == null) return;
+
                 beritaAdapter.submitList(beritaList);
 
                 if (beritaList.isEmpty()) {
@@ -80,16 +83,6 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
                 }
             });
         });
-    }
-
-    private void showLoading(boolean isLoading) {
-        if (isLoading) {
-            binding.progressBarFavorit.setVisibility(View.VISIBLE);
-            binding.textViewInfoFavorit.setVisibility(View.GONE);
-            binding.recyclerViewBeritaFavorit.setVisibility(View.GONE);
-        } else {
-            binding.progressBarFavorit.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -119,8 +112,8 @@ public class BeritaFavoritFragment extends Fragment implements BeritaAdapter.OnB
         executorService.execute(() -> {
             dbHelper.updateFavoriteStatus(berita.getArticleId(), newFavoriteStatus);
             mainThreadHandler.post(() -> {
-                loadBeritaFavoritFromDb();
                 Toast.makeText(requireContext(), "Dihapus dari favorit", Toast.LENGTH_SHORT).show();
+                loadBeritaFavoritFromDb();
             });
         });
     }

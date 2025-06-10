@@ -43,16 +43,25 @@ public class SemuaBeritaFragment extends Fragment implements BeritaAdapter.OnBer
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
-    private List<Berita> masterBeritaList = new ArrayList<>();
+    private final List<Berita> masterBeritaList = new ArrayList<>();
 
-    @Nullable
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        dbHelper = new DatabaseHelper(requireContext());
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentSemuaBeritaBinding.inflate(inflater, container, false);
-        dbHelper = new DatabaseHelper(requireContext());
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         setupRecyclerView();
         setupMenu();
-        return binding.getRoot();
     }
 
     @Override
@@ -76,22 +85,9 @@ public class SemuaBeritaFragment extends Fragment implements BeritaAdapter.OnBer
                 MenuItem searchItem = menu.findItem(R.id.action_search);
                 SearchView searchView = (SearchView) searchItem.getActionView();
 
-                assert searchView != null;
-                searchView.setQueryHint(getString(R.string.menu_search));
-
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        searchView.clearFocus();
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        filterBerita(newText);
-                        return true;
-                    }
-                });
+                if (searchView != null) {
+                    setupSearchView(searchView, searchItem);
+                }
             }
 
             @Override
@@ -152,39 +148,35 @@ public class SemuaBeritaFragment extends Fragment implements BeritaAdapter.OnBer
 
     private void updateUiWithBerita(List<Berita> beritaList) {
         if (binding == null) return;
-        showLoading(false);
+
         beritaAdapter.submitList(beritaList);
 
-        if (beritaList.isEmpty() && masterBeritaList.isEmpty()) {
+        if (beritaList.isEmpty() && !masterBeritaList.isEmpty()) {
             binding.textViewInfoSemua.setText(R.string.label_tidak_ada_berita);
             binding.textViewInfoSemua.setVisibility(View.VISIBLE);
             binding.recyclerViewSemuaBerita.setVisibility(View.GONE);
-        } else {
+        }
+        else if (masterBeritaList.isEmpty()) {
+            binding.textViewInfoSemua.setText(R.string.label_tidak_ada_berita);
+            binding.textViewInfoSemua.setVisibility(View.VISIBLE);
+            binding.recyclerViewSemuaBerita.setVisibility(View.GONE);
+        }
+        else {
             binding.textViewInfoSemua.setVisibility(View.GONE);
             binding.recyclerViewSemuaBerita.setVisibility(View.VISIBLE);
         }
     }
 
     private void loadSemuaBeritaFromDb() {
-        showLoading(true);
         executorService.execute(() -> {
             List<Berita> beritaFromDb = dbHelper.getAllBerita();
             mainThreadHandler.post(() -> {
+                if (binding == null) return;
                 masterBeritaList.clear();
                 masterBeritaList.addAll(beritaFromDb);
                 updateUiWithBerita(new ArrayList<>(masterBeritaList));
             });
         });
-    }
-
-    private void showLoading(boolean isLoading) {
-        if (isLoading) {
-            binding.progressBarSemua.setVisibility(View.VISIBLE);
-            binding.textViewInfoSemua.setVisibility(View.GONE);
-            binding.recyclerViewSemuaBerita.setVisibility(View.GONE);
-        } else {
-            binding.progressBarSemua.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -216,14 +208,16 @@ public class SemuaBeritaFragment extends Fragment implements BeritaAdapter.OnBer
 
         executorService.execute(() -> {
             dbHelper.updateFavoriteStatus(berita.getArticleId(), newFavoriteStatus);
-            mainThreadHandler.post(() -> {
-                for (Berita masterBerita : masterBeritaList) {
-                    if (masterBerita.getArticleId().equals(berita.getArticleId())) {
-                        masterBerita.setFavorite(newFavoriteStatus);
-                        break;
-                    }
+            for (Berita masterBerita : masterBeritaList) {
+                if (masterBerita.getArticleId().equals(berita.getArticleId())) {
+                    masterBerita.setFavorite(newFavoriteStatus);
+                    break;
                 }
-                beritaAdapter.updateFavoriteStatus(position, newFavoriteStatus);
+            }
+            mainThreadHandler.post(() -> {
+                if (binding != null) {
+                    beritaAdapter.updateFavoriteStatus(position, newFavoriteStatus);
+                }
             });
         });
     }

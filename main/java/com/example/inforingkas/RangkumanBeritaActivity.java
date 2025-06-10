@@ -43,7 +43,8 @@ public class RangkumanBeritaActivity extends AppCompatActivity {
     private ApiService apiService;
     private String articleId;
     private Berita currentBerita;
-    // ExecutorService sekarang hanya untuk database
+    private static final long MIN_ANIMATION_DURATION_MS = 2200;
+    private long fetchStartTime;
     private final ExecutorService dbExecutorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
@@ -69,8 +70,8 @@ public class RangkumanBeritaActivity extends AppCompatActivity {
             return;
         }
 
+        setupListeners();
         loadBeritaAndRangkuman();
-        binding.fabFavoriteRangkuman.setOnClickListener(v -> toggleFavorite());
     }
 
     private void setupToolbar() {
@@ -80,6 +81,11 @@ public class RangkumanBeritaActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.label_rangkuman_berita);
         }
+    }
+
+    private void setupListeners() {
+        binding.fabFavoriteRangkuman.setOnClickListener(v -> toggleFavorite());
+        binding.buttonMuatUlangRangkuman.setOnClickListener(v -> fetchRangkumanFromGemini());
     }
 
     private void loadBeritaAndRangkuman() {
@@ -116,20 +122,20 @@ public class RangkumanBeritaActivity extends AppCompatActivity {
 
     private void fetchRangkumanFromGemini() {
         if (currentBerita == null || TextUtils.isEmpty(currentBerita.getLink())) {
-            displayRangkuman(getString(R.string.label_gagal_memuat_rangkuman) + " (Link berita tidak tersedia)");
-            showLoadingRangkuman(false, null);
-            return;
-        }
-
-        if (!NetworkUtils.isNetworkAvailable(this)) {
-            displayRangkuman(getString(R.string.label_gagal_memuat_rangkuman) + " (Tidak ada koneksi internet)");
+            handleFailure(getString(R.string.label_gagal_memuat_rangkuman) + " (Link berita tidak tersedia)");
             showLoadingRangkuman(false, null);
             return;
         }
 
         showLoadingRangkuman(true, getString(R.string.label_memuat_rangkuman));
 
-        // Buat URL lengkap dan request body untuk Gemini
+        fetchStartTime = System.currentTimeMillis();
+
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            processFetchResult(() -> handleFailure(getString(R.string.label_gagal_memuat_rangkuman) + " (Tidak ada koneksi internet)"));
+            return;
+        }
+
         String geminiApiKey = BuildConfig.GEMINI_API_KEY;
         String fullUrl = String.format(Constants.GEMINI_API_URL_FORMAT, geminiApiKey);
         String prompt = "Tolong buatkan rangkuman singkat dalam Bahasa Indonesia dari artikel berita yang ada di tautan berikut: " + currentBerita.getLink() +
@@ -140,51 +146,72 @@ public class RangkumanBeritaActivity extends AppCompatActivity {
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<GeminiResponse> call, @NonNull Response<GeminiResponse> response) {
-                showLoadingRangkuman(false, null);
-                if (response.isSuccessful() && response.body() != null) {
-                    String summaryText = response.body().getSummaryText();
-                    if (summaryText != null) {
-                        displayRangkuman(summaryText);
-                        // Simpan rangkuman ke database di background thread
-                        dbExecutorService.execute(() -> {
-                            dbHelper.updateRangkuman(articleId, summaryText);
-                            currentBerita.setRangkuman(summaryText);
-                        });
-                    } else {
-                        displayRangkuman(getString(R.string.label_gagal_memuat_rangkuman) + " (Respons kosong)");
-                    }
-                } else {
-                    String errorBody = "Code: " + response.code();
-                    try {
-                        if (response.errorBody() != null) {
-                            errorBody = response.errorBody().string();
+                processFetchResult(() -> {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String summaryText = response.body().getSummaryText();
+                        if (summaryText != null) {
+                            displayRangkuman(summaryText);
+                            dbExecutorService.execute(() -> {
+                                dbHelper.updateRangkuman(articleId, summaryText);
+                                currentBerita.setRangkuman(summaryText);
+                            });
+                        } else {
+                            handleFailure(getString(R.string.label_gagal_memuat_rangkuman) + " (Respons kosong)");
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error parsing error body", e);
+                    } else {
+                        Log.e(TAG, "Gemini API Error Code: " + response.code());
+                        handleFailure(getString(R.string.label_gagal_memuat_rangkuman));
                     }
-                    Log.e(TAG, "Gemini API Error: " + errorBody);
-                    displayRangkuman(getString(R.string.label_gagal_memuat_rangkuman));
-                }
+                });
             }
 
             @Override
             public void onFailure(@NonNull Call<GeminiResponse> call, @NonNull Throwable t) {
                 Log.e(TAG, "Gemini API call failed: ", t);
-                showLoadingRangkuman(false, null);
-                displayRangkuman(getString(R.string.label_gagal_memuat_rangkuman) + " (" + t.getMessage() + ")");
+                processFetchResult(() -> handleFailure(getString(R.string.label_gagal_memuat_rangkuman) + " (" + t.getMessage() + ")"));
             }
         });
     }
 
+    private void processFetchResult(Runnable resultAction) {
+        if (binding == null) return;
+
+        long elapsedTime = System.currentTimeMillis() - fetchStartTime;
+
+        if (elapsedTime < MIN_ANIMATION_DURATION_MS) {
+            long delayNeeded = MIN_ANIMATION_DURATION_MS - elapsedTime;
+            mainThreadHandler.postDelayed(() -> {
+                showLoadingRangkuman(false, null);
+                resultAction.run();
+            }, delayNeeded);
+        } else {
+            showLoadingRangkuman(false, null);
+            resultAction.run();
+        }
+    }
+
     private void displayRangkuman(String textRangkuman) {
+        if (binding == null) return;
+        binding.buttonMuatUlangRangkuman.setVisibility(View.GONE);
+        binding.textViewIsiRangkuman.setVisibility(View.VISIBLE);
         binding.textViewIsiRangkuman.setText(textRangkuman);
+    }
+
+    private void handleFailure(String errorMessage) {
+        if (binding == null) return;
+        binding.textViewIsiRangkuman.setText(errorMessage);
+        binding.textViewIsiRangkuman.setVisibility(View.VISIBLE);
+        binding.buttonMuatUlangRangkuman.setVisibility(View.VISIBLE);
     }
 
     private void showLoadingRangkuman(boolean isLoading, String message) {
         if (isLoading) {
+            binding.buttonMuatUlangRangkuman.setVisibility(View.GONE);
             binding.progressBarRangkuman.setVisibility(View.VISIBLE);
+            binding.progressBarRangkuman.playAnimation();
             binding.textViewIsiRangkuman.setText(message != null ? message : getString(R.string.label_memuat_rangkuman));
         } else {
+            binding.progressBarRangkuman.cancelAnimation();
             binding.progressBarRangkuman.setVisibility(View.GONE);
         }
     }
